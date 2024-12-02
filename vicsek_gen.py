@@ -30,15 +30,6 @@ def find_nbrs(h,a,r=0.4):
         i+=1
     return nbr
 
-# def find_nbrs2(h,a,r=0.2):
-#     #finds indices of all neighbours in a given radius
-#     nbr=[]
-#     i=0
-#     for b in h:
-#         if a.dist2(b)<r or a==b:
-#             nbr.append(i)
-#         i+=1
-#     return nbr
 
 def vicsek_vel(h,a):
     #updates velocities according to the vicsek scheme
@@ -53,26 +44,7 @@ def vicsek_vel(h,a):
     th_av/=len(nbrs)
     th_av+=(eta*random.rand()-eta/2)
     return th_av
-    
-def pairwise_vel(a,b,r2=0.7):
-    c=a.get_th()
-    d=b.get_th()
-    if random.rand()<r2:
-        b.set_th(c)
-    if random.rand()<r2:
-        a.set_th(d)
-        
-def triplet_vel(a, b, c, r3=0.3):
-    th1=a.get_th()
-    th2=b.get_th()
-    th3=c.get_th()
-    x=np.array([np.fabs(th1-th2), np.fabs(th2-th3),np.fabs(th3-th1)])
-    i=np.argmin(x)
-    th=x[i]+x[(i+1)%3]
-    a.set_th(th)
-    b.set_th(th)
-    c.set_th(th)
-
+            
 def anv(h):
     #average normalised velocity of the herd
     va=np.zeros(2)

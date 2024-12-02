@@ -9,7 +9,7 @@ import sys
 
 L=3
 v=0.03
-eta=2
+eta=0.1
 dt=1
 N=300
 
@@ -34,6 +34,16 @@ def find_nn(h, a):
             d2=a.dist(b)
             nnn=b
     return nn, nnn
+
+def find_nbrs(h,a,r=0.4):
+    #finds indices of all neighbours in a given radius
+    nbr=[]
+    i=0
+    for b in h:
+        if a.dist(b)<r or a==b:
+            nbr.append(i)
+        i+=1
+    return nbr
     
 def pairwise_vel(a,b,r2=0.7):
     c=a.get_th()
@@ -42,7 +52,8 @@ def pairwise_vel(a,b,r2=0.7):
         b.set_th(c)
     if np.random.rand()<r2:
         a.set_th(d)
-        
+    b.set_th(b.get_th()+np.random.normal(0,eta))
+    a.set_th(a.get_th()+np.random.normal(0,eta))
 
 def anv(h):
     #average normalised velocity of the herd
@@ -70,8 +81,9 @@ for i in range(50):
     for j in range(len(herd)):
         #Update Position with PBC
         herd_nxt[j].set_pos((herd[j].get_pos()+herd[j].get_vel()*dt))
+    for j in range(len(herd)):
         #update velocity according to pairwise scheme
-        #add code
+        pairwise_vel(herd_nxt[j], herd_nxt[np.random.randint(0,len(find_nbrs(herd_nxt,herd_nxt[j]))+1)])
     
     #Load next iteration in as the starting point
     j=0
