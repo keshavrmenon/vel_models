@@ -7,14 +7,15 @@ Created on Tue Nov 26 04:38:15 2024
 """
 import sys
 
-L=3
+L=25
 v=0.03
-eta=2
+eta=0.1
 dt=1
 N=300
+T=1000
+sys.path.append('./header')
 
-sys.path.append('header')
-
+import csv
 import numpy as np
 import numpy.random as random
 import matplotlib.pyplot as plt
@@ -60,28 +61,46 @@ for i in range(N):
     herd.append(Animal(L*random.rand(2)-(L/2)*np.ones(2), theta= 2*np.pi*random.rand()-np.pi,speed=v, length=L))
     temp=herd[i].copy()
     herd_nxt.append(temp)
-    
-t=np.linspace(0, 49, 50)
+
+t=np.linspace(0, T-1, T)
 
 
 v_av=[]
 
-print(find_nbrs(herd, herd[3]))
-# print(find_nbrs2(herd, herd[3]))
+with open(f"./outputs/data/vicsek_L{L}_eta{eta}_v{v}.csv", "w", newline='') as f:
+    f.truncate()
 
-for i in range(50):
+# print(find_nbrs(herd, herd[3]))
+# print(find_nbrs2(herd, herd[3]))
+    
+for i in range(T):
+    #empty list to hold pos and vel values for the csv file
+    data = []
     v_av.append(anv(herd))
+    #add anv to the list for 
+    data.append(v_av[i])
     for j in range(len(herd)):
+        #add position data to the data list
+        data.append(herd[j].get_pos()[0])
+        data.append(herd[j].get_pos()[1])
         #Update Position with PBC
         herd_nxt[j].set_pos((herd[j].get_pos()+herd[j].get_vel()*dt))
-        #update velocity according to vicsek scheme
+    for j in range(len(herd)):
+        #add position data to the list to the data list        
+        data.append(herd[j].get_vel()[0])
+        data.append(herd[j].get_vel()[1])
+        #update velocity according to pairwise scheme
         herd_nxt[j].set_th(vicsek_vel(herd, herd[j]))
-    j=0
-    
+
     #Load next iteration in as the starting point
+    j=0
     for a in herd_nxt:
         herd[j]=a.copy()
         j+=1
     print(i)
+    with open(f"./outputs/data/vicsek_L{L}_eta{eta}_v{v}.csv", "a", newline='') as f:
+        writer = csv.writer(f,delimiter=' ')
+        writer.writerow(data)
+
 
 plt.plot(t,v_av)

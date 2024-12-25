@@ -12,9 +12,11 @@ v=0.03
 eta=0.1
 dt=1
 N=300
+T=1000
 
 sys.path.append('header')
 
+import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from animal import Animal
@@ -71,25 +73,43 @@ for i in range(N):
     temp=herd[i].copy()
     herd_nxt.append(temp)
     
-t=np.linspace(0, 49, 50)
+t=np.linspace(0, T-1, T)
 
 
 v_av=[]
 
-for i in range(50):
+
+
+with open(f"./outputs/data/pairwise_L{L}_eta{eta}_v{v}.csv", "w", newline='') as f:
+    f.truncate()
+
+for i in range(T):
+    #empty list to hold pos and vel values for the csv file
+    data = []
     v_av.append(anv(herd))
+    #add anv to the list for 
+    data.append(v_av[i])
     for j in range(len(herd)):
+        #add position data to the data list
+        data.append(herd[j].get_pos()[0])
+        data.append(herd[j].get_pos()[1])
         #Update Position with PBC
         herd_nxt[j].set_pos((herd[j].get_pos()+herd[j].get_vel()*dt))
     for j in range(len(herd)):
+        #add position data to the list to the data list        
+        data.append(herd[j].get_vel()[0])
+        data.append(herd[j].get_vel()[1])
         #update velocity according to pairwise scheme
         pairwise_vel(herd_nxt[j], herd_nxt[np.random.randint(0,len(find_nbrs(herd_nxt,herd_nxt[j]))+1)])
-    
+
     #Load next iteration in as the starting point
     j=0
     for a in herd_nxt:
         herd[j]=a.copy()
         j+=1
     print(i)
-
+    with open(f"./outputs/data/pairwise_L{L}_eta{eta}_v{v}.csv", "a", newline='') as f:
+        writer = csv.writer(f,delimiter=' ')
+        writer.writerow(data)
+        
 plt.plot(t,v_av)
